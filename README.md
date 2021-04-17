@@ -1,0 +1,2 @@
+# Nettlebot
+My Discord bot
