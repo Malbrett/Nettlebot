@@ -1,10 +1,12 @@
+import cards
 import discord
-import concurrent.futures
+import asyncio
 from discord.ext import commands
 
 import config
 
 client = discord.Client()
+bot = commands.Bot(command_prefix=config.PREFIX)
 
 
 @client.event
