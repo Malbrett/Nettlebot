@@ -19,12 +19,14 @@ async def on_ready():
 
 @bot.command()
 async def hello(ctx):
-    await ctx.send('Hello!')
+    async with ctx.typing():
+        await ctx.send('Hello!')
 
 
 @bot.command()
 async def echo(ctx, arg):
-    await ctx.send(arg)
+    async with ctx.typing():
+        await ctx.send(arg)
 
 
 @bot.command()
@@ -46,5 +48,13 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    counter = 0
+    async for history in message.channel.history(limit=5):
+        if history.content.capitalize() == message.content.capitalize():
+            if history.author == bot.user:
+                return  # hopefully this part doesn't break other things
+            counter += 1
+    if counter >= 3:
+        await message.channel.send(message.content.capitalize())    # I call this the spam enabler
 
 bot.run(config.TOKEN)
