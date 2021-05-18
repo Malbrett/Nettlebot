@@ -19,7 +19,12 @@ async def on_ready():
 
 @bot.command()
 async def hello(ctx):
-    await ctx.channel.send('Hello!')
+    await ctx.send('Hello!')
+
+
+@bot.command()
+async def echo(ctx, arg):
+    await ctx.send(arg)
 
 
 @bot.command()
@@ -34,6 +39,12 @@ async def clear(ctx):
 
     deleted = await ctx.channel.purge(limit=10, check=is_mine)
     print('Deleted {} message(s)'.format(len(deleted)))
+
+
+@bot.listen()
+async def on_message(message):
+    if message.author == bot.user:
+        return
 
 
 bot.run(config.TOKEN)
