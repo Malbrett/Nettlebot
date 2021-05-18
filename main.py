@@ -49,12 +49,20 @@ async def on_message(message):
         return
 
     counter = 0
+    authors = []
     async for history in message.channel.history(limit=5):
         if history.content.capitalize() == message.content.capitalize():
-            if history.author == bot.user:
+            authors.append(history.author)
+            if bot.user in authors:
                 return  # hopefully this part doesn't break other things
+            for user in authors:
+                if authors.count(user) > 1:
+                    return
             counter += 1
     if counter >= 3:
-        await message.channel.send(message.content.capitalize())    # I call this the spam enabler
+        if "http" in message.content:
+            await message.channel.send(message.content.lower())    # I call this the spam enabler
+        else:
+            await message.channel.send(message.content.capitalize())
 
 bot.run(config.TOKEN)
