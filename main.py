@@ -6,7 +6,8 @@ from discord.ext import commands
 import config
 
 client = discord.Client()
-bot = commands.Bot(command_prefix=config.PREFIX)
+perms = discord.AllowedMentions(everyone=False)
+bot = commands.Bot(command_prefix=config.PREFIX, allowed_mentions=perms)
 
 
 @bot.event
@@ -26,7 +27,7 @@ async def hello(ctx):
 @bot.command()
 async def echo(ctx, arg):
     async with ctx.typing():
-        await ctx.send(arg)
+        await ctx.send(arg, allowed_mentions=perms)
 
 
 @bot.command()
@@ -61,7 +62,7 @@ async def on_message(message):
             counter += 1
     if counter >= 3:
         if "http" in message.content:
-            await message.channel.send(message.content.lower())    # I call this the spam enabler
+            await message.channel.send(message.content.lower())  # I call this the spam enabler
         else:
             await message.channel.send(message.content.capitalize())
 
