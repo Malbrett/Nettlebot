@@ -10,15 +10,18 @@ class Card:
         self.name = str(name).capitalize()
         self.value = int(value)
 
+    def __str__(self):
+        return f"{self.name} of {self.suit}"
+
 
 class Deck:
     def __init__(self, **kwargs):
-        self.tarot = kwargs.get("TAROT", False)
-        self.ext = kwargs.get("EXT", False)
+        # self.tarot = kwargs.get("TAROT", False)
+        # self.ext = kwargs.get("EXT", False)
         self.stack = []
-        total_cards = 0
         for suit in suits:
             for val in range(14, 1):
-                self.stack[total_cards] = Card(suit, names[val],
-                                               lambda x: [1, 11] if val == 1 else (10 if val >= 10 else val))
-                total_cards += 1
+                if val > 10:
+                    self.stack.append(Card(suit, names[val-1], 10))
+                else:
+                    self.stack.append(Card(suit, names[val-1], val))
