@@ -1,27 +1,58 @@
 import random
 
-suits = ("hearts", "spades", "diamonds", "clubs")
-names = ("ace", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king")
+suits = ("Hearts", "Spades", "Diamonds", "Clubs")
+tarotSuits = ("Swords", "Cups", "Wands", "Coins")
+names = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King")
+tarotNames = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+              "Page", "Knight", "Queen", "King")
+arcana = ('The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The Emperor',
+          'The Hierophant', 'The Lovers', 'The Chariot', 'Strength', 'The Hermit', 'Wheel of Fortune',
+          'Justice', 'The Hanged Man', 'Death', 'Temperance', 'The Devil', 'The Tower', 'The Star',
+          'The Moon', 'The Sun', 'Judgement', 'The World')
 
 
 class Card:
-    def __init__(self, suit, name, value):
-        self.suit = str(suit).capitalize()
-        self.name = str(name).capitalize()
-        self.value = int(value)
+    def get_value(self):
+        if self.tarot:
+            if self.suit == "Major":
+                return arcana.index(self.name)
+            else:
+                index_val = tarotNames.index(self.name) + 1
+        else:
+            index_val = names.index(self.name) + 1
+
+        if index_val == 1:
+            return [1, 11]
+        elif index_val > 10:
+            return 10
+        else:
+            return index_val
+
+    def __init__(self, suit, name, **kwargs):
+        self.suit = str(suit)
+        self.name = str(name)
+        self.tarot = kwargs.get("TAROT", False)
+        self.value = self.get_value()
 
     def __str__(self):
-        return f"{self.name} of {self.suit}"
+        if self.suit == "Major":
+            return self.name
+        else:
+            return f"{self.name} of {self.suit}"
 
 
 class Deck:
     def __init__(self, **kwargs):
-        # self.tarot = kwargs.get("TAROT", False)
+        self.tarot = kwargs.get("TAROT", False)
         # self.ext = kwargs.get("EXT", False)
         self.stack = []
-        for suit in suits:
-            for val in range(14, 1):
-                if val > 10:
-                    self.stack.append(Card(suit, names[val-1], 10))
-                else:
-                    self.stack.append(Card(suit, names[val-1], val))
+        if self.tarot:
+            for suit in tarotSuits:
+                for name in tarotNames:
+                    self.stack.append(Card(suit, name, TAROT=True))
+            for name in arcana:
+                self.stack.append(Card("Major", name, TAROT=True))
+        else:
+            for suit in suits:
+                for name in names:
+                    self.stack.append(Card(suit, name))
