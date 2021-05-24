@@ -56,3 +56,16 @@ class Deck:
             for suit in suits:
                 for name in names:
                     self.stack.append(Card(suit, name))
+
+    def shuffle(self):
+        random.shuffle(self.stack)
+
+    def deal(self, pos=0):
+        return self.stack.pop(pos)
+
+    def insert(self, card, **kwargs):
+        if kwargs.get("BOTTOM", False):
+            self.stack.append(card)
+        else:
+            pos = kwargs.get("POS", 0)
+            self.stack.insert(pos, card)
