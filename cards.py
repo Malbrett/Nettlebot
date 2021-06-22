@@ -10,6 +10,9 @@ arcana = ('The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The 
           'Justice', 'The Hanged Man', 'Death', 'Temperance', 'The Devil', 'The Tower', 'The Star',
           'The Moon', 'The Sun', 'Judgement', 'The World')
 
+# TODO: Give cards emoji representations
+#       Implement into bot
+
 
 class Card:
     def get_value(self):
@@ -22,7 +25,7 @@ class Card:
             index_val = names.index(self.name) + 1
 
         if index_val == 1:
-            return [1, 11]
+            return [11, 1]
         elif index_val > 10:
             return 10
         else:

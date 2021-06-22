@@ -9,6 +9,8 @@ client = discord.Client()
 perms = discord.AllowedMentions(everyone=False)
 bot = commands.Bot(command_prefix=config.PREFIX, allowed_mentions=perms)
 
+either_or = (['Yanny', 'Laurel'], ["GIF", "JIF"])
+
 
 @bot.event
 async def on_ready():
@@ -66,4 +68,23 @@ async def on_message(message):
         else:
             await message.channel.send(message.content.capitalize())
 
+
+class Game(commands.Cog):
+    def __init__(self, user):
+        self.bot = user
+
+    async def lobby(self, ctx):
+        member = ctx.author
+
+
+class Blackjack(Game):
+    @commands.command()
+    async def blackjack(self, ctx):
+        """Starts a game of blackjack"""
+        member = ctx.author
+        print(f'{member} has started a hand of blackjack')
+        await ctx.send('{0.mention}'.format(member))
+
+
+bot.add_cog(Blackjack(bot))
 bot.run(config.TOKEN)
