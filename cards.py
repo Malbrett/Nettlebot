@@ -47,9 +47,11 @@ class Card:
 class Deck:
     def __init__(self, **kwargs):
         self.tarot = kwargs.get("TAROT", False)
-        # self.ext = kwargs.get("EXT", False)
+        self.hand = kwargs.get("HAND", False)
         self.stack = []
-        if self.tarot:
+        if self.hand:
+            return
+        elif self.tarot:
             for suit in tarotSuits:
                 for name in tarotNames:
                     self.stack.append(Card(suit, name, TAROT=True))
@@ -63,8 +65,12 @@ class Deck:
     def shuffle(self):
         random.shuffle(self.stack)
 
-    def deal(self, pos=0):
-        return self.stack.pop(pos)
+    def draw(self, pos=0, **kwargs):
+        card_name = kwargs.get("CARD", None)
+        if card_name:
+            self.stack.pop(self.stack.index(card_name))  # doesn't work yet
+        else:
+            return self.stack.pop(pos)
 
     def insert(self, card, **kwargs):
         if kwargs.get("BOTTOM", False):
