@@ -9,6 +9,8 @@ arcana = ('The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The 
           'The Hierophant', 'The Lovers', 'The Chariot', 'Strength', 'The Hermit', 'Wheel of Fortune',
           'Justice', 'The Hanged Man', 'Death', 'Temperance', 'The Devil', 'The Tower', 'The Star',
           'The Moon', 'The Sun', 'Judgement', 'The World')
+unoCards = ('Red', 'Green', 'Blue', 'Yellow')
+unoSpecialCards = ('Reverse', 'Draw Two', 'Skip Turn', 'Wild', 'Draw Four')
 
 # TODO: Give cards emoji representations
 #       Implement into bot
@@ -31,10 +33,11 @@ class Card:
         else:
             return index_val
 
-    def __init__(self, suit, name, **kwargs):
+    def __init__(self, suit, name, tarot=False, uno=False):
         self.suit = str(suit)
         self.name = str(name)
-        self.tarot = kwargs.get("TAROT", False)
+        self.tarot = tarot
+        self.uno = uno
         self.value = self.get_value()
 
     def __str__(self):
@@ -45,18 +48,25 @@ class Card:
 
 
 class Deck:
-    def __init__(self, **kwargs):
-        self.tarot = kwargs.get("TAROT", False)
-        self.hand = kwargs.get("HAND", False)
+    def __init__(self, tarot=False, hand=False, uno=False):
+        self.tarot = tarot
+        self.hand = hand
+        self.uno = uno
         self.stack = []
         if self.hand:
             return
         elif self.tarot:
             for suit in tarotSuits:
                 for name in tarotNames:
-                    self.stack.append(Card(suit, name, TAROT=True))
+                    self.stack.append(Card(suit, name, tarot=True))
             for name in arcana:
-                self.stack.append(Card("Major", name, TAROT=True))
+                self.stack.append(Card("Major", name, tarot=True))
+        elif self.uno:                                                  # Does not work
+            for color in unoCards:
+                for num in range(0, 10):
+                    self.stack.append(Card(color, num, uno=True))
+                for special in unoSpecialCards:
+                    self.stack.append(Card(color, special, uno=True))
         else:
             for suit in suits:
                 for name in names:
@@ -65,16 +75,14 @@ class Deck:
     def shuffle(self):
         random.shuffle(self.stack)
 
-    def draw(self, pos=0, **kwargs):
-        card_name = kwargs.get("CARD", None)
-        if card_name:
-            self.stack.pop(self.stack.index(card_name))  # doesn't work yet
+    def draw(self, pos=0, card=None):
+        if card:
+            self.stack.pop(self.stack.index(card))  # doesn't work yet
         else:
             return self.stack.pop(pos)
 
-    def insert(self, card, **kwargs):
-        if kwargs.get("BOTTOM", False):
+    def insert(self, card, pos=0, bottom=False):
+        if bottom:
             self.stack.append(card)
         else:
-            pos = kwargs.get("POS", 0)
             self.stack.insert(pos, card)
