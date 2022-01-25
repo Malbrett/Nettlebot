@@ -53,7 +53,7 @@ async def on_message(message):
 
     counter = 0
     authors = []
-    async for history in message.channel.history(limit=5):
+    async for history in message.channel.history(limit=8):
         if history.content.capitalize() == message.content.capitalize():
             authors.append(history.author)
             if bot.user in authors:
