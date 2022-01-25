@@ -1,0 +1,33 @@
+Commands:
+    Poll Maker
+        Multiple Choice (option 1, option 2, etc...)
+        Scale (side 1, side 2, range)
+            Default range (1-5, 0-10, etc...) can be changed in config
+        Auto-poll
+            Detect potential polls in messages
+
+    Cards
+        Set designated chat in config (optional)
+        initialization command (game mode, player count)
+        maximum concurrent session limit (config, default 1)
+        maximum player count (config, default none)
+        branch into single/multiplayer
+            Solo
+                Public session against a bot
+                Only valid for some games (blackjack, poker)
+            Multiplayer
+                Hands are private (sent through DMs)
+                Requires bot DMs to be enabled
+                init lobby, wait for players to join
+                    will time out after some time
+        Game modes:
+            Poker
+            Blackjack
+            Uno
+            CAH
+            Tarot
+
+Non-command auto-responses:
+    #rules (admin, mods)
+    "what do you want"
+
