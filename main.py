@@ -1,6 +1,7 @@
 # import cards
 import discord
 import asyncio
+import time
 from discord.ext import commands
 
 import config
@@ -72,18 +73,31 @@ async def on_message(message):
 class Game(commands.Cog):
     def __init__(self, user):
         self.bot = user
+        self.player_count = 1
+        self.host = None
+        self.members = {}
 
-    async def lobby(self, ctx):
-        member = ctx.author
+    class Lobby(self, host):  # this is fucked up I need to fix it later
+        self.host = host
+        self.members[0] = host
+
+    @commands.command()
+    async def join(self, ctx):
+        self.members[self.player_count] = ctx.author  # this is also fucked
+        self.player_count += 1
+        await ctx.send('{0.mention}'.format(ctx.author)+' has joined the lobby')
+        print(self.members)
+        print(self.player_count)
 
 
 class Blackjack(Game):
     @commands.command()
     async def blackjack(self, ctx):
         """Starts a game of blackjack"""
-        member = ctx.author
-        print(f'{member} has started a hand of blackjack')
-        await ctx.send('{0.mention}'.format(member))
+        lobby = self.lobby(ctx.author)  # there's a lot that needs unfucking
+        print(f'{self.lobby.host} has started a game of blackjack')
+        await ctx.send('{0.mention}'.format(self.lobby())+' has started a game of blackjack!\n'
+                       f'Type {config.PREFIX}join to play with them')
 
 
 bot.add_cog(Blackjack(bot))
