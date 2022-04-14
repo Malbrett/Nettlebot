@@ -39,12 +39,20 @@ async def ping(ctx):
 
 
 @bot.command()
+@commands.is_owner()
 async def clear(ctx):
+    if ctx.message.reference:
+        msg_id = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+        deleted = await ctx.channel.purge(limit=1000, after=msg_id)
+        print('Deleted {} message(s)'.format(len(deleted)))
+        return
+
     def is_mine(m):
         return (m.author == bot.user) | m.content.startswith(config.PREFIX)
 
     deleted = await ctx.channel.purge(limit=10, check=is_mine)
     print('Deleted {} message(s)'.format(len(deleted)))
+    return
 
 
 @bot.listen()
