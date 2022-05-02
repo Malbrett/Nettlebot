@@ -1,6 +1,7 @@
 # import cards
 import discord
-import asyncio
+# import asyncio
+# import time
 from discord.ext import commands
 
 import config
@@ -38,12 +39,20 @@ async def ping(ctx):
 
 
 @bot.command()
+@commands.is_owner()
 async def clear(ctx):
+    if ctx.message.reference:
+        msg_id = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+        deleted = await ctx.channel.purge(limit=1000, after=msg_id)
+        print('Deleted {} message(s)'.format(len(deleted)))
+        return
+
     def is_mine(m):
         return (m.author == bot.user) | m.content.startswith(config.PREFIX)
 
     deleted = await ctx.channel.purge(limit=10, check=is_mine)
     print('Deleted {} message(s)'.format(len(deleted)))
+    return
 
 
 @bot.listen()
@@ -70,20 +79,60 @@ async def on_message(message):
 
 
 class Game(commands.Cog):
-    def __init__(self, user):
-        self.bot = user
+    def __init__(self, bott):
+        self.phase = 0
+        self.bot = bott
+        self.host = None
+        self.player_count = 0
+        self.members = []
 
-    async def lobby(self, ctx):
-        member = ctx.author
+    @commands.command()
+    async def join(self, ctx):
+        """Joins the active lobby"""
+        if self.phase == 0:
+            await ctx.reply('There is nothing to join right now')
+            return
+        elif self.phase == 2:
+            await ctx.reply('This game is already in progress, try next time')
+            return   # maybe have this delete the messages after
+        elif self.phase == 1:
+            # if dms are off:
+            #   let them know they need dms on to join
+            #   return
+            if ctx.author in self.members:
+                await ctx.reply('You are already in the lobby')
+                return
+            self.members[self.player_count] = ctx.author  # this is also fucked
+            self.player_count += 1
+            await ctx.send('{0.mention}'.format(ctx.author)+' has joined the lobby')
+            print(self.members)
+            print(self.player_count)
+            return
+
+    @commands.command()
+    async def start(self, ctx):
+        """Closes the lobby and starts the game"""
+        if ctx.author != self.host:
+            await ctx.send('Only the host can start the lobby early')
+            return
+        self.phase = 2
+        print('Game started')
 
 
 class Blackjack(Game):
     @commands.command()
     async def blackjack(self, ctx):
-        """Starts a game of blackjack"""
-        member = ctx.author
-        print(f'{member} has started a hand of blackjack')
-        await ctx.send('{0.mention}'.format(member))
+        """Opens a blackjack lobby"""
+        if self.phase == 0:
+            self.phase = 1
+            self.host = ctx.author
+            self.members.append(ctx.author)
+            self.player_count = 1
+            print(f'{self.host} has started a game of blackjack')
+            await ctx.send('{0.mention}'.format(self.host)+' has started a game of blackjack!\n'
+                           f'Type {config.PREFIX}join to play with them')
+        else:
+            await ctx.send(f'There is already an active blackjack lobby')
 
 
 bot.add_cog(Blackjack(bot))
