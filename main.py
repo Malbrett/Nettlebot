@@ -89,22 +89,30 @@ class Game(commands.Cog):
     @commands.command()
     async def join(self, ctx):
         """Joins the active lobby"""
+        if not ctx.user.dm_channel:
+            try:
+                await ctx.user.dm_channel.send('Thank you for using Nettlebot!\n'
+                                               'You\'ll be getting some DMs from me occasionally,\n'
+                                               'but not too many, I\'m not crazy')
+            except discord.Forbidden:
+                await ctx.reply('You must be able to receive bot DMs to use this feature')
+                return
+
         if self.phase == 0:
             await ctx.reply('There is nothing to join right now')
             return
         elif self.phase == 2:
-            await ctx.reply('This game is already in progress, try next time')
+            await ctx.reply('This game is already in progress, try again next time')
             return   # maybe have this delete the messages after
         elif self.phase == 1:
-            # if dms are off:
-            #   let them know they need dms on to join
-            #   return
             if ctx.author in self.members:
                 await ctx.reply('You are already in the lobby')
                 return
             self.members[self.player_count] = ctx.author  # this is also fucked
             self.player_count += 1
-            await ctx.send('{0.mention}'.format(ctx.author)+' has joined the lobby')
+            await ctx.send('{0.mention}'.format(ctx.author) + ' has joined the lobby')
+            await ctx.user.dm_channel.send('You\'ve joined {0.mention}\'s lobby!\n'.format(self.host) +
+                                           'Sit tight, the game will start soon')
             print(self.members)
             print(self.player_count)
             return

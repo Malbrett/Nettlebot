@@ -12,8 +12,9 @@ arcana = ('The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The 
 unoCards = ('Red', 'Green', 'Blue', 'Yellow')
 unoSpecialCards = ('Reverse', 'Draw Two', 'Skip Turn', 'Wild', 'Draw Four')
 
-# TODO: Give cards emoji representations
-#       Implement into bot
+# TODO:
+#  Give cards emoji representations
+#  Implement into bot
 
 
 class Card:
