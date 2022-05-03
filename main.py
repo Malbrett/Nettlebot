@@ -99,6 +99,8 @@ class Game(commands.Cog):
     async def join(self, ctx, game):
         """Joins the active lobby"""
         if game != self.game_name:
+            if has_been_replied_to(ctx):
+                return
             if game is None:
                 await ctx.reply('Please specify what game you want to join')
             return
