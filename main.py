@@ -13,6 +13,14 @@ bot = commands.Bot(command_prefix=config.PREFIX, allowed_mentions=perms)
 either_or = (['Yanny', 'Laurel'], ["GIF", "JIF"])
 
 
+def has_been_replied_to(ctx):
+    def replied(m):
+        return m.reference.message_id == ctx.message_id
+    if ctx.channel.history(limit=10, check=replied):
+        return True
+    return False
+
+
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
@@ -80,6 +88,7 @@ async def on_message(message):
 
 class Game(commands.Cog):
     def __init__(self, bott):
+        self.game_name = None
         self.phase = 0
         self.bot = bott
         self.host = None
@@ -87,38 +96,42 @@ class Game(commands.Cog):
         self.members = []
 
     @commands.command()
-    async def join(self, ctx):
+    async def join(self, ctx, game):
         """Joins the active lobby"""
+        if game != self.game_name:
+            if game is None:
+                await ctx.reply('Please specify what game you want to join')
+            return
+
         if self.phase == 0:
             await ctx.reply('There is nothing to join right now')
             return
 
-        elif self.phase == 2:
+        if self.phase == 2:
             await ctx.reply('This game is already in progress, try again next time')
             return   # maybe have this delete the messages after
 
-        elif self.phase == 1:
-            if ctx.author in self.members:
-                await ctx.reply('You are already in the lobby')
+        if ctx.author in self.members:
+            await ctx.reply('You are already in the lobby')
+            return
+
+        if ctx.author.dm_channel is None:
+            await ctx.author.create_dm()
+        async with ctx.typing():
+            try:
+                await ctx.author.dm_channel.send('You\'ve joined {0.mention}\'s lobby!\n'.format(self.host) +
+                                                 'Sit tight, the game will start soon')
+                await ctx.send('{0.mention}'.format(ctx.author) + ' has joined the lobby')
+            except discord.Forbidden:
+                await ctx.reply('You must be able to receive bot DMs to use this feature')
                 return
 
-            if ctx.author.dm_channel is None:
-                await ctx.author.create_dm()
-            async with ctx.typing():
-                try:
-                    await ctx.author.dm_channel.send('You\'ve joined {0.mention}\'s lobby!\n'.format(self.host) +
-                                                     'Sit tight, the game will start soon')
-                    await ctx.send('{0.mention}'.format(ctx.author) + ' has joined the lobby')
-                except discord.Forbidden:
-                    await ctx.reply('You must be able to receive bot DMs to use this feature')
-                    return
-
-            self.members.append(ctx.author)  # this is also fucked
-            self.player_count += 1
-            # print(self.members)
-            print(f'{self.members[self.player_count-1]} has joined the lobby')
-            print(f'{self.player_count} players in lobby')
-            return
+        self.members.append(ctx.author)  # this is also fucked
+        self.player_count += 1
+        # print(self.members)
+        print(f'{self.members[self.player_count-1]} has joined the lobby')
+        print(f'{self.player_count} players in lobby')
+        return
 
     @commands.command()
     async def start(self, ctx):
@@ -136,15 +149,34 @@ class Blackjack(Game):
         """Opens a blackjack lobby"""
         if self.phase == 0:
             self.phase = 1
+            self.game_name = 'blackjack'
             self.host = ctx.author
             self.members.append(ctx.author)
             self.player_count = 1
             print(f'{self.host} has started a game of blackjack')
             await ctx.send('{0.mention}'.format(self.host)+' has started a game of blackjack!\n'
-                           f'Type {config.PREFIX}join to play with them')
+                           f'Type `{config.PREFIX}join blackjack` to play with them')
         else:
             await ctx.send(f'There is already an active blackjack lobby')
 
 
+class Poker(Game):
+    @commands.command()
+    async def poker(self, ctx):
+        """Opens a poker lobby"""
+        if self.phase == 0:
+            self.phase = 1
+            self.game_name = 'poker'
+            self.host = ctx.author
+            self.members.append(ctx.author)
+            self.player_count = 1
+            print(f'{self.host} has started a game of poker')
+            await ctx.send('{0.mention}'.format(self.host)+' has started a game of poker!\n'
+                           f'Type `{config.PREFIX}join poker` to play with them')
+        else:
+            await ctx.send(f'There is already an active poker lobby')
+
+
 bot.add_cog(Blackjack(bot))
+bot.add_cog(Poker(bot))
 bot.run(config.TOKEN)
