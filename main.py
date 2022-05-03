@@ -85,6 +85,13 @@ async def on_message(message):
         else:
             await message.channel.send(message.content.capitalize())
 
+# TODO: Fundamentally change how the Game()
+#       cog functions in relation to card games.
+#       This is gonna be hard but basically you have to get rid of the Game()
+#       inheritance structure and just have one CardGame() class that contains
+#       ALL the card games (blackjack, poker, etc.) otherwise they will each need
+#       unique join/start commands and that sucks
+
 
 class Game(commands.Cog):
     def __init__(self, bott):
@@ -98,37 +105,37 @@ class Game(commands.Cog):
     @commands.command()
     async def join(self, ctx, game):
         """Joins the active lobby"""
-        if game != self.game_name:
+        if game != self.game_name:  # This is the logic to see if a game has been specified to join
             if has_been_replied_to(ctx):
                 return
             if game is None:
                 await ctx.reply('Please specify what game you want to join')
             return
 
-        if self.phase == 0:
+        if self.phase == 0:  # If there's no game running
             await ctx.reply('There is nothing to join right now')
             return
 
-        if self.phase == 2:
+        if self.phase == 2:  # If there's an in-progress game
             await ctx.reply('This game is already in progress, try again next time')
-            return   # maybe have this delete the messages after
+            return
 
-        if ctx.author in self.members:
+        if ctx.author in self.members:  # If you're already in the lobby
             await ctx.reply('You are already in the lobby')
             return
 
-        if ctx.author.dm_channel is None:
+        if ctx.author.dm_channel is None:  # Check if the member has been DMed before
             await ctx.author.create_dm()
         async with ctx.typing():
             try:
                 await ctx.author.dm_channel.send('You\'ve joined {0.mention}\'s lobby!\n'.format(self.host) +
                                                  'Sit tight, the game will start soon')
                 await ctx.send('{0.mention}'.format(ctx.author) + ' has joined the lobby')
-            except discord.Forbidden:
+            except discord.Forbidden:  # Make sure they can be DMed in the first place
                 await ctx.reply('You must be able to receive bot DMs to use this feature')
                 return
 
-        self.members.append(ctx.author)  # this is also fucked
+        self.members.append(ctx.author)
         self.player_count += 1
         # print(self.members)
         print(f'{self.members[self.player_count-1]} has joined the lobby')
