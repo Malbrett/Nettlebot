@@ -19,6 +19,8 @@ unoSpecials = ('Skip', 'Reverse', 'Draw')
 
 class Card:
     def get_value(self):
+        if self.name == "Ace":
+            return 11
         if self.tarot:
             if self.suit == "Major":
                 return arcana.index(self.name)
@@ -78,12 +80,24 @@ class Deck:
                 self.stack.append(Card(suit, name))
         return
 
-    def list(self, hidden=True):
+    def list(self, val=False, hide=False):
         contents = ""
+        value = 0
+        ace = False
         for card in self.stack:
-            if card.hidden and hidden:
-                contents += f"*Hidden card,* "
+            if card.hidden and hide:
+                contents += f"*Hidden card*, "
+                continue
             contents += f"{card}, "
+            if card.value == 11:
+                ace = True
+            value += card.value
+        if val:
+            if hide:
+                return f'{value} + X'
+            if ace and value > 21:
+                return value - 10
+            return value
         return contents
 
     def shuffle(self):

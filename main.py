@@ -109,7 +109,8 @@ async def on_message(message):
             await message.channel.send(message.content.capitalize())
 
 
-class CardGame(commands.Cog):
+class CardGames(commands.Cog):
+    """Used to play in-chat card games, such as """
     def __init__(self, bott):
         self.bot = bott
         self.game_name = None
@@ -130,13 +131,25 @@ class CardGame(commands.Cog):
             self.hand = cards.Deck(hand=True)
             self.hand_value = 0
 
+    @commands.command()
+    async def games(self, ctx):
+        """Lists available games you can play"""
+        await ctx.reply('Blackjack')
+        return
+
     async def blackjack(self, ctx):
-        deck = cards.Deck()
-        deck.shuffle()
-        for player in self.members:
-            player.hand.insert(deck.draw(hidden=True))
-            player.hand.insert(deck.draw())
-            await player.user.dm_channel.send(f'Your cards are: {player.hand.list(hidden=False)}')
+        async with ctx.typing():
+            deck = cards.Deck()
+            deck.shuffle()
+            for player in self.members:
+                player.hand.insert(deck.draw(hidden=True))
+                player.hand.insert(deck.draw())
+                await player.user.dm_channel.send(f'Your cards are: {player.hand.list()}\n'
+                                                  f'Total: {player.hand.list(val=True)}')
+
+        gui = await ctx.send('```'
+                             'lol'
+                             '```')
         return
 
     async def poker(self, ctx):
@@ -153,6 +166,7 @@ class CardGame(commands.Cog):
         for game in cardgames:
             if gmd == game:
                 self.game_name = game
+                break
 
         if self.phase == 0:
             if gmd is None:
@@ -242,5 +256,5 @@ class CardGame(commands.Cog):
         return
 
 
-bot.add_cog(CardGame(bot))
+bot.add_cog(CardGames(bot))
 bot.run(config.TOKEN)
