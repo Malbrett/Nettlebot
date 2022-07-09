@@ -31,24 +31,28 @@ async def on_ready():
 
 @bot.command()
 async def hello(ctx):
+    """The bot is quite polite, and will say hello back"""
     async with ctx.typing():
         await ctx.send('Hello!')
 
 
 @bot.command()
 async def echo(ctx, arg):
+    """Make the bot say something, maybe even a bad word"""
     async with ctx.typing():
         await ctx.send(arg, allowed_mentions=perms)
 
 
 @bot.command()
 async def ping(ctx):
+    """Annoying and pointless"""
     await ctx.reply("Pong!")
 
 
 @bot.command()
 @commands.is_owner()
 async def archive(ctx, arg=0):
+    """Export messages into .txt from Discord"""
     if ctx.message.reference:
         msgs = [await ctx.channel.fetch_message(ctx.message.reference.message_id)]
         if arg:
@@ -67,6 +71,7 @@ async def archive(ctx, arg=0):
 @bot.command()
 @commands.is_owner()
 async def clear(ctx):
+    """Clear messages en masse, either a specific number or up to a specified message"""
     if ctx.message.reference:
         msg_id = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         deleted = await ctx.channel.purge(limit=1000, after=msg_id)
@@ -144,7 +149,7 @@ class CardGame(commands.Cog):
 
     @commands.command()
     async def start(self, ctx, gmd=None):
-        """Initiates a card game"""
+        """Used to create a card game lobby"""
         for game in cardgames:
             if gmd == game:
                 self.game_name = game
