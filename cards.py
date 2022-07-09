@@ -28,9 +28,10 @@ class Card:
             return
         return min(names.index(self.name) + 1, 10)
 
-    def __init__(self, suit, name, tarot=False, uno=False):
+    def __init__(self, suit, name, hidden=False, tarot=False, uno=False):
         self.suit = str(suit)
         self.name = str(name)
+        self.hidden = hidden
         self.tarot = tarot
         self.uno = uno
         self.value = self.get_value()
@@ -77,14 +78,22 @@ class Deck:
                 self.stack.append(Card(suit, name))
         return
 
+    def list(self, hidden=True):
+        contents = ""
+        for card in self.stack:
+            if card.hidden and hidden:
+                contents += f"*Hidden card,* "
+            contents += f"{card}, "
+        return contents
+
     def shuffle(self):
         random.shuffle(self.stack)
 
-    def draw(self, pos=0, card=None):
-        if card:
-            return  # self.stack.pop(self.stack.index(card))  # doesn't work yet
-        else:
-            return self.stack.pop(pos)
+    def draw(self, pos=0, hidden=False):
+        dealt = self.stack.pop(pos)
+        if hidden:
+            dealt.hidden = True
+        return dealt
 
     def insert(self, card, pos=0, bottom=False):
         if bottom:
