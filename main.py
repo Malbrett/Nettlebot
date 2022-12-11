@@ -1,5 +1,4 @@
 import asyncio
-
 import cards
 import discord
 # import time
@@ -38,7 +37,9 @@ async def parse_move(ctx, moves, player):
     except asyncio.TimeoutError:
         return None
     else:
-        return choice
+        return 1  # this needs to return what the choice is
+    finally:
+        text.delete()
 
 
 def has_been_replied_to(ctx):
@@ -84,11 +85,19 @@ async def ping(ctx):
 @bot.command()
 async def rps(ctx):
     """Play 'Rock, Paper, Scissors' with the bot"""
-    moves = ('fist', 'raised_hand', 'v')
-    choice = await parse_move(ctx, moves, ctx.author)
-    bot_choice = ':fist:'
-    await ctx.send(f'Your choice: {choice}\n'
-                   f'My choice: {bot_choice}')
+    moves = (':fist:', ':raised_hand:', ':v:')
+    pc = await parse_move(ctx, moves, ctx.author)
+    npc = 0
+    async with ctx.typing():
+        if pc == npc:
+            result = "We tied!"
+        elif pc - npc == 1 or -2:
+            result = "You win!"
+        elif pc - npc == -1 or 2:
+            result = "I win!"
+        await ctx.send(f'Your choice: {moves[pc]}\n'
+                       f'My choice: {moves[npc]}\n'
+                       f'{result}')
     return
 
 
